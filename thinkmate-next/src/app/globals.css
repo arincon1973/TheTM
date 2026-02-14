@@ -1,0 +1,166 @@
+/* Import Tailwind CSS base, components, and utilities */
+@import "tailwindcss";
+
+/* Root CSS Variables for theming
+   Similar to CSS custom properties in static version */
+:root {
+  /* Light mode colors - CSS: color: #FFFFFF → Tailwind: text-white */
+  --background: #ffffff;
+  --foreground: #1f2937;
+  --primary: #16a34a; /* Green primary color for buttons and accents */
+  --secondary: #8b5cf6;
+  --surface: #f9fafb;
+  --border: #e5e7eb;
+  --text-light: #6b7280;
+  --success: #10b981;
+  --error: #ef4444;
+}
+
+/* Dark mode colors - applied via .dark class on html element
+   CSS: .dark-mode class → Tailwind: dark: prefix */
+.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+  --surface: #1f2937;
+  --border: #374151;
+  --text-light: #d1d5db;
+}
+
+/* Also support prefers-color-scheme for system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: #111827;
+    --foreground: #f9fafb;
+    --surface: #1f2937;
+    --border: #374151;
+    --text-light: #d1d5db;
+  }
+}
+
+/* Ensure body transitions smoothly between themes */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* CSS PROPERTY TO TAILWIND MAPPINGS (commented for learning):
+
+1. display: flex → flex
+2. display: grid → grid
+3. justify-content: center → justify-center
+4. align-items: center → items-center
+5. margin: 1rem → m-4
+6. padding: 1rem → p-4
+7. font-size: 2.25rem → text-4xl
+8. font-weight: 700 → font-bold
+9. background-color: #3B82F6 → bg-blue-500
+10. color: #1F2937 → text-gray-800
+11. border-radius: 8px → rounded-lg
+12. box-shadow: 0 4px 6px → shadow-md
+13. transition: all 0.3s → transition-all duration-300
+14. max-width: 1200px → max-w-7xl
+15. gap: 1rem → gap-4
+16. position: relative → relative
+17. position: absolute → absolute
+18. width: 100% → w-full
+19. height: 100% → h-full
+20. @media (max-width: 768px) → md: prefix (mobile-first)
+21. opacity: 0.9 → opacity-90
+22. transform: translateY(-5px) → -translate-y-1.5 or hover:-translate-y-1.5
+23. z-index: 1000 → z-[1000]
+24. line-height: 1.6 → leading-relaxed
+25. text-align: center → text-center
+*/
+
+/* Tailwind theme customization */
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  
+  /* Custom color definitions matching our design */
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+}
+
+/* Base body styles
+   CSS: font-family, line-height, color, background-color
+   → Tailwind: Applied directly in components */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  /* CSS: transition: background-color 0.3s → Tailwind: transition-colors duration-300 */
+}
+
+/* Smooth scroll behavior for anchor links
+   CSS: scroll-behavior: smooth (no direct Tailwind equivalent, use CSS) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Navbar Styles - Custom styles for navbar component */
+.navbar-link {
+  @apply text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors;
+}
+
+.navbar-button {
+  @apply px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm;
+}
+
+/* Mobile Menu Styles */
+.mobile-menu-link {
+  @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors;
+}
+
+/* Dark Mode Toggle Styles */
+.dark-mode-toggle {
+  @apply p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500;
+}
+
+/* Custom animations not available in default Tailwind */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Additional utility classes for modular components */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Ensure smooth scrolling for anchor links */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Account for sticky navbar */
+  }
+}
+
+/* Focus visible styles for accessibility
+   Enhanced focus states beyond default Tailwind */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* CSS: Remove default button and input styles that Tailwind doesn't handle */
+button {
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}

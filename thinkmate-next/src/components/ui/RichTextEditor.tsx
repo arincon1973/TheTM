@@ -36,6 +36,7 @@ export default function RichTextEditor({
     ],
     content,
     editable: !readOnly,
+    immediatelyRender: false, // Fix SSR hydration issues
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },

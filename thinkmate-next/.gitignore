@@ -52,3 +52,13 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# Files with sensitive information
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+*.env.example
+*.env.local.example
+RAILWAY_DEPLOYMENT.md

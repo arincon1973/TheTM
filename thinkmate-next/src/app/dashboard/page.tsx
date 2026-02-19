@@ -305,60 +305,6 @@ export default function DashboardPage() {
         <div id="saved-notes" style={{ marginTop: '3rem', scrollMarginTop: '6rem' }}>
           <NotesList />
         </div>
-
-        {/* Advanced Features Section */}
-        <div style={{
-          marginTop: '3rem',
-          background: 'linear-gradient(to right, #16a34a, #3b82f6)',
-          borderRadius: '0.5rem',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          padding: '2rem',
-          color: '#ffffff',
-        }}>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '1rem' }}>
-            🎉 New Advanced Features Available!
-          </h2>
-          <p style={{ fontSize: '1.125rem', opacity: 0.9, marginBottom: '1.5rem' }}>
-            Your notes now have powerful capabilities:
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <div style={{ opacity: 0.9 }}>
-              <strong>✨ Rich Text Editor</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Full formatting, tables, code blocks</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>🏷️ Tags & Categories</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Organize with tags and folders</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>📎 File Attachments</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Upload images, PDFs, and more</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>📋 Templates</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Quick start with pre-built templates</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>⏱️ Version History</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Track changes and restore versions</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>🔗 Note Sharing</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Share with permissions and links</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>📄 Export Options</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>PDF, Markdown, HTML & more</p>
-            </div>
-            <div style={{ opacity: 0.9 }}>
-              <strong>🔍 Advanced Search</strong>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>Filter by tags, dates, categories</p>
-            </div>
-          </div>
-          <p style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '1.5rem' }}>
-            Click on any note to access all features including rich text editing, attachments, version history, and sharing!
-          </p>
-        </div>
       </div>
     </main>
   );

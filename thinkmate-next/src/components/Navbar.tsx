@@ -79,7 +79,7 @@ export default function Navbar() {
             {/* Sign In/Sign Out button - changes based on auth status */}
             {isAuthenticated ? (
               <button 
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => signOut({ redirect: true, callbackUrl: '/' })}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
               >
                 Sign Out
@@ -192,7 +192,7 @@ export default function Navbar() {
             <button
               onClick={() => {
                 closeMobileMenu();
-                signOut({ callbackUrl: '/' });
+                signOut({ redirect: true, callbackUrl: '/' });
               }}
               className="w-full block px-3 py-2 rounded-md text-base font-medium bg-green-600 hover:bg-green-700 text-white transition-colors text-center"
             >

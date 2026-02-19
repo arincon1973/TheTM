@@ -49,13 +49,11 @@ export default function NotesList() {
   // Edit form states
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
-  const [useRichText, setUseRichText] = useState(false);
   const [saving, setSaving] = useState(false);
   
   // Create note form states
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
-  const [newUseRichText, setNewUseRichText] = useState(false);
   const [creating, setCreating] = useState(false);
   
   // Version history states
@@ -168,7 +166,6 @@ export default function NotesList() {
     setSelectedNote(note);
     setEditTitle(note.title);
     setEditContent(note.content);
-    setUseRichText(note.isRichText || false);
     setIsViewModalOpen(false);
     setIsEditModalOpen(true);
   };
@@ -204,7 +201,7 @@ export default function NotesList() {
           id: selectedNote._id,
           title: editTitle.trim() || selectedNote.title,
           content: editContent.trim(),
-          isRichText: useRichText,
+          isRichText: true,
         }),
       });
 
@@ -268,7 +265,6 @@ export default function NotesList() {
   const handleCreateClick = () => {
     setNewTitle('');
     setNewContent('');
-    setNewUseRichText(false);
     setIsCreateModalOpen(true);
   };
 
@@ -295,7 +291,7 @@ export default function NotesList() {
           content: newContent.trim(),
           prompt: 'Manual note creation',
           action: 'generate',
-          isRichText: newUseRichText,
+          isRichText: true,
         }),
       });
 
@@ -310,7 +306,6 @@ export default function NotesList() {
       setIsCreateModalOpen(false);
       setNewTitle('');
       setNewContent('');
-      setNewUseRichText(false);
     } catch (err: any) {
       setError(err.message || 'Failed to create note');
       console.error('Create error:', err);
@@ -637,40 +632,16 @@ export default function NotesList() {
                   placeholder="Note title..."
                 />
               </div>
-              
-              {/* Rich Text Toggle */}
-              <div className="mb-4 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="richTextToggle"
-                  checked={useRichText}
-                  onChange={(e) => setUseRichText(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-                />
-                <label htmlFor="richTextToggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Use Rich Text Editor (formatting, lists, headings)
-                </label>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Content
                 </label>
-                {useRichText ? (
-                  <RichTextEditor
-                    content={editContent}
-                    onChange={setEditContent}
-                    placeholder="Write your note..."
-                  />
-                ) : (
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-                    rows={12}
-                    placeholder="Note content..."
-                  />
-                )}
+                <RichTextEditor
+                  content={editContent}
+                  onChange={setEditContent}
+                  placeholder="Write your note..."
+                />
               </div>
             </div>
 
@@ -846,40 +817,16 @@ export default function NotesList() {
                   placeholder="Note title (optional)..."
                 />
               </div>
-              
-              {/* Rich Text Toggle */}
-              <div className="mb-4 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="newRichTextToggle"
-                  checked={newUseRichText}
-                  onChange={(e) => setNewUseRichText(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="newRichTextToggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Use Rich Text Editor (formatting, lists, headings)
-                </label>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Content *
                 </label>
-                {newUseRichText ? (
-                  <RichTextEditor
-                    content={newContent}
-                    onChange={setNewContent}
-                    placeholder="Write your note..."
-                  />
-                ) : (
-                  <textarea
-                    value={newContent}
-                    onChange={(e) => setNewContent(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    rows={12}
-                    placeholder="Write your note content..."
-                  />
-                )}
+                <RichTextEditor
+                  content={newContent}
+                  onChange={setNewContent}
+                  placeholder="Write your note..."
+                />
               </div>
             </div>
 

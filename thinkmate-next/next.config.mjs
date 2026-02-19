@@ -20,6 +20,9 @@ const nextConfig = {
       '@': './src',
     },
   },
+  
+  // Enable standalone output for Docker deployment (optional)
+  output: process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined,
 };
 
 export default nextConfig;

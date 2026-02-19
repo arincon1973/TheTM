@@ -242,6 +242,13 @@ export async function PATCH(request: NextRequest) {
       }
     );
 
+    if (!note) {
+      return NextResponse.json(
+        { error: 'Note not found or you do not have permission to edit it' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       note: {

@@ -1,0 +1,12 @@
+# Files to ignore during Railway deployment
+.next
+node_modules
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+*.log
+.cursor
+terminals
+test-mongodb.js

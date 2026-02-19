@@ -464,10 +464,8 @@ export default function NotesList() {
                   {/* Content Preview */}
                   <div 
                     className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-3"
-                    dangerouslySetInnerHTML={note.isRichText ? { __html: note.content } : undefined}
-                  >
-                    {!note.isRichText && note.content}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                  />
 
                   {/* Footer */}
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
@@ -540,11 +538,9 @@ export default function NotesList() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Content:</h3>
                 <div 
-                  className={selectedNote.isRichText ? "prose dark:prose-invert max-w-none" : "text-gray-900 dark:text-white whitespace-pre-wrap leading-relaxed"}
-                  dangerouslySetInnerHTML={selectedNote.isRichText ? { __html: selectedNote.content } : undefined}
-                >
-                  {!selectedNote.isRichText && selectedNote.content}
-                </div>
+                  className="prose dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedNote.content }}
+                />
               </div>
             </div>
 
@@ -749,11 +745,9 @@ export default function NotesList() {
                         {version.title}
                       </p>
                       <div 
-                        className={version.isRichText ? "text-sm text-gray-600 dark:text-gray-400 line-clamp-3 prose prose-sm dark:prose-invert" : "text-sm text-gray-600 dark:text-gray-400 line-clamp-3"}
-                        dangerouslySetInnerHTML={version.isRichText ? { __html: version.content } : undefined}
-                      >
-                        {!version.isRichText && version.content}
-                      </div>
+                        className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 prose prose-sm dark:prose-invert"
+                        dangerouslySetInnerHTML={{ __html: version.content }}
+                      />
                     </div>
                   ))}
                 </div>

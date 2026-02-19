@@ -44,12 +44,19 @@ export default function NotesList() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   // Edit form states
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [useRichText, setUseRichText] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Create note form states
+  const [newTitle, setNewTitle] = useState('');
+  const [newContent, setNewContent] = useState('');
+  const [newUseRichText, setNewUseRichText] = useState(false);
+  const [creating, setCreating] = useState(false);
   
   // Version history states
   const [versions, setVersions] = useState<Version[]>([]);
@@ -256,12 +263,70 @@ export default function NotesList() {
   };
 
   /**
+   * Open create modal
+   */
+  const handleCreateClick = () => {
+    setNewTitle('');
+    setNewContent('');
+    setNewUseRichText(false);
+    setIsCreateModalOpen(true);
+  };
+
+  /**
+   * Create new note manually
+   */
+  const handleCreateNote = async () => {
+    if (!newContent.trim()) {
+      setError('Content is required');
+      return;
+    }
+
+    setCreating(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newTitle.trim() || 'Untitled Note',
+          content: newContent.trim(),
+          prompt: 'Manual note creation',
+          action: 'generate',
+          isRichText: newUseRichText,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create note');
+      }
+
+      // Add new note to list
+      setNotes([data.note, ...notes]);
+      setIsCreateModalOpen(false);
+      setNewTitle('');
+      setNewContent('');
+      setNewUseRichText(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create note');
+      console.error('Create error:', err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  /**
    * Close modals
    */
   const closeModals = () => {
     setIsViewModalOpen(false);
     setIsEditModalOpen(false);
     setIsVersionModalOpen(false);
+    setIsCreateModalOpen(false);
     setSelectedNote(null);
     setError('');
   };
@@ -330,16 +395,28 @@ export default function NotesList() {
               {notes.length} {notes.length === 1 ? 'note' : 'notes'} • Click any note to view or edit
             </p>
           </div>
-          <button
-            onClick={fetchNotes}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
-            aria-label="Refresh notes"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCreateClick}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
+              aria-label="Create new note"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New Note
+            </button>
+            <button
+              onClick={fetchNotes}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
+              aria-label="Refresh notes"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Error Message */}
@@ -722,6 +799,119 @@ export default function NotesList() {
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-md transition-colors"
               >
                 Back to Note
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Note Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModals}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <div className="flex justify-between items-start">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  ✍️ Create New Note
+                </h2>
+                <button
+                  onClick={closeModals}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Create Form */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                </div>
+              )}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  maxLength={200}
+                  placeholder="Note title (optional)..."
+                />
+              </div>
+              
+              {/* Rich Text Toggle */}
+              <div className="mb-4 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="newRichTextToggle"
+                  checked={newUseRichText}
+                  onChange={(e) => setNewUseRichText(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="newRichTextToggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Use Rich Text Editor (formatting, lists, headings)
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Content *
+                </label>
+                {newUseRichText ? (
+                  <RichTextEditor
+                    content={newContent}
+                    onChange={setNewContent}
+                    placeholder="Write your note..."
+                  />
+                ) : (
+                  <textarea
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    rows={12}
+                    placeholder="Write your note content..."
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex gap-3 justify-end">
+              <button
+                onClick={closeModals}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateNote}
+                disabled={creating || !newContent.trim()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white rounded-md transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
+              >
+                {creating ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Note
+                  </>
+                )}
               </button>
             </div>
           </div>

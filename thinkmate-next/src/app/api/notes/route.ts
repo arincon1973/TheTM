@@ -191,11 +191,44 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    // Save current version before updating (if content has changed)
+    if (currentNote.content !== content.trim() || currentNote.title !== noteTitle) {
+      try {
+        // Import NoteVersion model
+        const NoteVersion = (await import('@/models/NoteVersion')).default;
+        
+        // Get the latest version number
+        const latestVersion = await NoteVersion.findOne({ noteId: id })
+          .sort({ version: -1 })
+          .select('version');
+        
+        const nextVersion = latestVersion ? latestVersion.version + 1 : 1;
+
+        // Create version snapshot
+        await NoteVersion.create({
+          noteId: id,
+          userId: session.user.id,
+          title: currentNote.title,
+          content: currentNote.content,
+          isRichText: currentNote.isRichText || false,
+          version: nextVersion,
+        });
+      } catch (versionError) {
+        console.error('Failed to create version:', versionError);
+        // Continue with update even if version creation fails
+      }
+    }
+
     // Update note
     const updateData: any = {
       title: noteTitle || undefined,
       content: content.trim(),
     };
+
+    // Add isRichText if provided
+    if (isRichText !== undefined) {
+      updateData.isRichText = isRichText;
+    }
 
     const note = await Note.findOneAndUpdate(
       {
@@ -222,6 +255,7 @@ export async function PATCH(request: NextRequest) {
         id: note._id.toString(),
         title: note.title,
         content: note.content,
+        isRichText: note.isRichText,
         prompt: note.prompt,
         action: note.action,
         createdAt: note.createdAt,

@@ -1,11 +1,18 @@
 /**
- * Notes List Component with Full CRUD
- * Beautiful UI for viewing, editing, and deleting notes
+ * Enhanced Notes List Component with Rich Text & Version History
+ * Beautiful UI for viewing, editing, and managing notes
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import RichTextEditor to avoid SSR issues
+const RichTextEditor = dynamic(() => import('./RichTextEditor'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-64 rounded-md"></div>,
+});
 
 interface Note {
   _id: string;
@@ -13,8 +20,18 @@ interface Note {
   content: string;
   prompt: string;
   action: string;
+  isRichText?: boolean;
   createdAt: string;
   updatedAt?: string;
+}
+
+interface Version {
+  id: string;
+  version: number;
+  title: string;
+  content: string;
+  isRichText: boolean;
+  createdAt: string;
 }
 
 export default function NotesList() {
@@ -26,11 +43,17 @@ export default function NotesList() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
   
   // Edit form states
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [useRichText, setUseRichText] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Version history states
+  const [versions, setVersions] = useState<Version[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
 
   /**
    * Fetch notes from API
@@ -57,6 +80,73 @@ export default function NotesList() {
   };
 
   /**
+   * Fetch version history for a note
+   */
+  const fetchVersions = async (noteId: string) => {
+    setLoadingVersions(true);
+    try {
+      const response = await fetch(`/api/notes/${noteId}/versions`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch versions');
+      }
+
+      setVersions(data.versions || []);
+    } catch (err: any) {
+      console.error('Fetch versions error:', err);
+      alert('Failed to load version history');
+    } finally {
+      setLoadingVersions(false);
+    }
+  };
+
+  /**
+   * Restore a version
+   */
+  const handleRestoreVersion = async (versionId: string) => {
+    if (!selectedNote) return;
+    
+    if (!confirm('Restore this version? The current version will be saved to history.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/notes/${selectedNote._id}/restore`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ versionId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to restore version');
+      }
+
+      // Update note in list
+      setNotes(notes.map(note => 
+        note._id === selectedNote._id 
+          ? { ...note, ...data.note }
+          : note
+      ));
+
+      setSelectedNote({ ...selectedNote, ...data.note });
+      setIsVersionModalOpen(false);
+      setIsViewModalOpen(true);
+      alert('Version restored successfully!');
+      
+      // Refresh versions
+      fetchVersions(selectedNote._id);
+    } catch (err: any) {
+      console.error('Restore version error:', err);
+      alert(err.message || 'Failed to restore version');
+    }
+  };
+
+  /**
    * Open view modal
    */
   const handleViewNote = (note: Note) => {
@@ -71,8 +161,19 @@ export default function NotesList() {
     setSelectedNote(note);
     setEditTitle(note.title);
     setEditContent(note.content);
+    setUseRichText(note.isRichText || false);
     setIsViewModalOpen(false);
     setIsEditModalOpen(true);
+  };
+
+  /**
+   * Open version history modal
+   */
+  const handleVersionsClick = (note: Note) => {
+    setSelectedNote(note);
+    setIsViewModalOpen(false);
+    setIsVersionModalOpen(true);
+    fetchVersions(note._id);
   };
 
   /**
@@ -96,6 +197,7 @@ export default function NotesList() {
           id: selectedNote._id,
           title: editTitle.trim() || selectedNote.title,
           content: editContent.trim(),
+          isRichText: useRichText,
         }),
       });
 
@@ -108,7 +210,7 @@ export default function NotesList() {
       // Update note in list
       setNotes(notes.map(note => 
         note._id === selectedNote._id 
-          ? { ...note, title: data.note.title, content: data.note.content, updatedAt: data.note.updatedAt }
+          ? { ...note, ...data.note }
           : note
       ));
 
@@ -159,6 +261,7 @@ export default function NotesList() {
   const closeModals = () => {
     setIsViewModalOpen(false);
     setIsEditModalOpen(false);
+    setIsVersionModalOpen(false);
     setSelectedNote(null);
     setError('');
   };
@@ -269,22 +372,30 @@ export default function NotesList() {
                   onClick={() => handleViewNote(note)}
                   className="group relative border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:shadow-xl dark:hover:shadow-2xl transition-all duration-200 cursor-pointer bg-white dark:bg-gray-800/50 hover:border-green-500 dark:hover:border-green-600"
                 >
-                  {/* Badge */}
-                  <div className="absolute top-3 right-3">
+                  {/* Badges */}
+                  <div className="absolute top-3 right-3 flex gap-1">
                     <span className={`text-xs px-2 py-1 rounded-full ${badge.bg} ${badge.text} font-medium`}>
                       {badge.label}
                     </span>
+                    {note.isRichText && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 font-medium">
+                        Rich
+                      </span>
+                    )}
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2 pr-20 line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2 pr-24 line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                     {note.title}
                   </h3>
 
                   {/* Content Preview */}
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-3">
-                    {note.content}
-                  </p>
+                  <div 
+                    className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-3"
+                    dangerouslySetInnerHTML={note.isRichText ? { __html: note.content } : undefined}
+                  >
+                    {!note.isRichText && note.content}
+                  </div>
 
                   {/* Footer */}
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
@@ -303,7 +414,7 @@ export default function NotesList() {
       {/* View Modal */}
       {isViewModalOpen && selectedNote && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModals}>
-          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
               <div className="flex justify-between items-start">
@@ -320,6 +431,11 @@ export default function NotesList() {
                         </span>
                       );
                     })()}
+                    {selectedNote.isRichText && (
+                      <span className="text-xs px-2 py-1 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                        Rich Text
+                      </span>
+                    )}
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Created: {formatDate(selectedNote.createdAt)}
                     </span>
@@ -351,22 +467,34 @@ export default function NotesList() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Content:</h3>
-                <div className="text-gray-900 dark:text-white whitespace-pre-wrap leading-relaxed">
-                  {selectedNote.content}
+                <div 
+                  className={selectedNote.isRichText ? "prose dark:prose-invert max-w-none" : "text-gray-900 dark:text-white whitespace-pre-wrap leading-relaxed"}
+                  dangerouslySetInnerHTML={selectedNote.isRichText ? { __html: selectedNote.content } : undefined}
+                >
+                  {!selectedNote.isRichText && selectedNote.content}
                 </div>
               </div>
             </div>
 
             {/* Modal Actions */}
-            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex gap-3 justify-end">
+            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex gap-3 justify-end flex-wrap">
               <button
-                onClick={() => navigator.clipboard.writeText(selectedNote.content)}
+                onClick={() => navigator.clipboard.writeText(selectedNote.content.replace(/<[^>]*>/g, ''))}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Copy
+              </button>
+              <button
+                onClick={() => handleVersionsClick(selectedNote)}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                History
               </button>
               <button
                 onClick={() => handleEditClick(selectedNote)}
@@ -394,7 +522,7 @@ export default function NotesList() {
       {/* Edit Modal */}
       {isEditModalOpen && selectedNote && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModals}>
-          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
               <div className="flex justify-between items-start">
@@ -432,17 +560,40 @@ export default function NotesList() {
                   placeholder="Note title..."
                 />
               </div>
+              
+              {/* Rich Text Toggle */}
+              <div className="mb-4 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="richTextToggle"
+                  checked={useRichText}
+                  onChange={(e) => setUseRichText(e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="richTextToggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Use Rich Text Editor (formatting, lists, headings)
+                </label>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Content
                 </label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-                  rows={12}
-                  placeholder="Note content..."
-                />
+                {useRichText ? (
+                  <RichTextEditor
+                    content={editContent}
+                    onChange={setEditContent}
+                    placeholder="Write your note..."
+                  />
+                ) : (
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                    rows={12}
+                    placeholder="Note content..."
+                  />
+                )}
               </div>
             </div>
 
@@ -475,6 +626,102 @@ export default function NotesList() {
                     Save Changes
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Version History Modal */}
+      {isVersionModalOpen && selectedNote && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModals}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                    ⏱️ Version History
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {selectedNote.title}
+                  </p>
+                </div>
+                <button
+                  onClick={closeModals}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Versions List */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loadingVersions ? (
+                <div className="flex items-center justify-center py-12">
+                  <svg className="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+              ) : versions.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 dark:text-gray-400">No version history yet</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                    Version history is created when you edit notes
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {versions.map((version) => (
+                    <div
+                      key={version.id}
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-green-500 dark:hover:border-green-600 transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 dark:text-white">
+                            Version {version.version}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDate(version.createdAt)}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleRestoreVersion(version.id)}
+                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                        >
+                          Restore
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-1">
+                        {version.title}
+                      </p>
+                      <div 
+                        className={version.isRichText ? "text-sm text-gray-600 dark:text-gray-400 line-clamp-3 prose prose-sm dark:prose-invert" : "text-sm text-gray-600 dark:text-gray-400 line-clamp-3"}
+                        dangerouslySetInnerHTML={version.isRichText ? { __html: version.content } : undefined}
+                      >
+                        {!version.isRichText && version.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsVersionModalOpen(false);
+                  setIsViewModalOpen(true);
+                }}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-md transition-colors"
+              >
+                Back to Note
               </button>
             </div>
           </div>

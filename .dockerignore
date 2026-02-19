@@ -1,0 +1,48 @@
+# Dependencies
+thinkmate-next/node_modules
+thinkmate-next/.pnp
+thinkmate-next/.pnp.js
+
+# Testing
+thinkmate-next/coverage
+
+# Next.js
+thinkmate-next/.next/
+thinkmate-next/out/
+
+# Production
+thinkmate-next/build
+
+# Misc
+thinkmate-next/.DS_Store
+*.pem
+
+# Debug
+thinkmate-next/npm-debug.log*
+thinkmate-next/yarn-debug.log*
+thinkmate-next/yarn-error.log*
+
+# Local env files
+thinkmate-next/.env*.local
+thinkmate-next/.env.local
+thinkmate-next/.env.development.local
+thinkmate-next/.env.test.local
+thinkmate-next/.env.production.local
+
+# Vercel
+thinkmate-next/.vercel
+
+# Typescript
+thinkmate-next/*.tsbuildinfo
+thinkmate-next/next-env.d.ts
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!thinkmate-next/README.md
+
+# Test files
+test-mongodb.js

@@ -107,25 +107,42 @@ export default function Contact({
     if (validateForm()) {
       setIsSubmitting(true);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      setShowSuccess(true);
-      setIsSubmitting(false);
+        const data = await response.json();
 
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send message');
+        }
 
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 5000);
+        setShowSuccess(true);
 
-      console.log('Form submitted successfully!');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          message: ''
+        });
+
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 5000);
+
+        console.log('Form submitted successfully!');
+      } catch (error: any) {
+        console.error('Form submission error:', error);
+        alert(error.message || 'Failed to send message. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 

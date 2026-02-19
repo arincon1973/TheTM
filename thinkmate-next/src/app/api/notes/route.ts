@@ -191,44 +191,11 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Save current version before updating (if content has changed)
-    if (currentNote.content !== content.trim() || currentNote.title !== noteTitle) {
-      try {
-        // Import NoteVersion model
-        const NoteVersion = (await import('@/models/NoteVersion')).default;
-        
-        // Get the latest version number
-        const latestVersion = await NoteVersion.findOne({ noteId: id })
-          .sort({ version: -1 })
-          .select('version');
-        
-        const nextVersion = latestVersion ? latestVersion.version + 1 : 1;
-
-        // Create version snapshot
-        await NoteVersion.create({
-          noteId: id,
-          userId: session.user.id,
-          title: currentNote.title,
-          content: currentNote.content,
-          version: nextVersion,
-          label: 'Auto-saved',
-        });
-      } catch (versionError) {
-        console.error('Failed to create version:', versionError);
-        // Continue with update even if version creation fails
-      }
-    }
-
     // Update note
     const updateData: any = {
       title: noteTitle || undefined,
       content: content.trim(),
     };
-
-    // Add optional fields if provided
-    if (isRichText !== undefined) updateData.isRichText = isRichText;
-    if (tags !== undefined) updateData.tags = tags;
-    if (categoryId !== undefined) updateData.categoryId = categoryId;
 
     const note = await Note.findOneAndUpdate(
       {

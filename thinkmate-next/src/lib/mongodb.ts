@@ -47,7 +47,7 @@ async function connectDB(): Promise<typeof mongoose> {
       tls: true,
       tlsAllowInvalidCertificates: false,
       retryWrites: true,
-      w: 'majority',
+      w: 'majority' as const,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {

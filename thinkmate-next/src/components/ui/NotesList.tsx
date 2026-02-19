@@ -538,7 +538,8 @@ export default function NotesList() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Content:</h3>
                 <div 
-                  className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-100"
+                  className="prose dark:prose-invert max-w-none text-gray-900 dark:text-white"
+                  style={{ color: 'inherit' }}
                   dangerouslySetInnerHTML={{ __html: selectedNote.content }}
                 />
               </div>

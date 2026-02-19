@@ -246,15 +246,43 @@ textarea {
 }
 
 /* Dark mode styles for TipTap */
+.dark .ProseMirror {
+  color: #ffffff;
+}
+
 .dark .ProseMirror code {
   background-color: rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
+  color: #f0f0f0;
 }
 
 .dark .ProseMirror blockquote {
   border-left-color: #fff;
+  color: #e5e5e5;
 }
 
 .dark .ProseMirror hr {
   border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .ProseMirror p,
+.dark .ProseMirror li,
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3 {
+  color: #ffffff;
+}
+
+/* Ensure prose content is visible in dark mode */
+.dark .prose {
+  color: #ffffff;
+}
+
+.dark .prose p,
+.dark .prose li,
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose strong,
+.dark .prose em {
+  color: #ffffff !important;
 }

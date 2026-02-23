@@ -59,9 +59,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing Section - Displays Free and Pro plans */}
-      <Pricing />
-
       {/* Contact Section - Form for user inquiries */}
       <Contact />
     </main>

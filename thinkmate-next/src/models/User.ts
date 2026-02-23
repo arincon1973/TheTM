@@ -44,6 +44,32 @@ const userSchema = new Schema<IUser>(
       unique: true,
       sparse: true, // Allows multiple null values
     },
+    
+    // Subscription fields
+    subscriptionTier: {
+      type: String,
+      enum: ['free', 'pro'],
+      default: 'free',
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['active', 'canceled', 'past_due', 'trialing', 'incomplete'],
+      default: 'active',
+    },
+    stripeCustomerId: {
+      type: String,
+      sparse: true,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      sparse: true,
+    },
+    subscriptionStartDate: {
+      type: Date,
+    },
+    subscriptionEndDate: {
+      type: Date,
+    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

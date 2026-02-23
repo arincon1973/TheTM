@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Card from './Card';
 import Button from './Button';
 
@@ -8,6 +10,7 @@ import Button from './Button';
  * Pricing Component
  * Displays pricing plans with features and CTAs
  * Supports Free and Pro tiers with feature lists
+ * Handles Stripe checkout for Pro plan
  */
 
 interface PricingTier {
@@ -63,6 +66,58 @@ export default function Pricing({
     }
   ]
 }: PricingProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handlePlanClick = async (planName: string) => {
+    // Free plan - redirect to sign up or dashboard
+    if (planName === 'Free') {
+      if (session) {
+        router.push('/dashboard');
+      } else {
+        router.push('/auth/sign-up');
+      }
+      return;
+    }
+
+    // Pro plan - handle checkout
+    if (planName === 'Pro') {
+      if (!session) {
+        // Redirect to sign in first
+        router.push('/auth/sign-in?callbackUrl=/');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Create checkout session (price ID is determined server-side)
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create checkout session');
+        }
+
+        // Redirect to Stripe checkout
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      } catch (error: any) {
+        console.error('Checkout error:', error);
+        alert(error.message || 'Failed to start checkout. Please try again.');
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <section id="pricing" className="px-6 py-16 md:py-24 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
@@ -147,8 +202,10 @@ export default function Pricing({
                 variant={tier.highlighted ? 'primary' : 'secondary'}
                 fullWidth
                 size="lg"
+                onClick={() => handlePlanClick(tier.name)}
+                disabled={loading}
               >
-                {tier.cta}
+                {loading && tier.name === 'Pro' ? 'Loading...' : tier.cta}
               </Button>
             </Card>
           ))}

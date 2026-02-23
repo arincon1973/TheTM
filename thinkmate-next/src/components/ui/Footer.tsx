@@ -29,7 +29,6 @@ export default function Footer({
   links = [
     { label: 'Home', href: '#home' },
     { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
     { label: 'Contact', href: '#contact' }
   ],
   socialLinks = {

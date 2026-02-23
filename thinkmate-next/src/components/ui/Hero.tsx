@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Button from './Button';
 
 /**
  * Hero Component
  * Main landing section with background image, headline, subheadline, and CTA
  * Features gradient overlay and responsive typography
+ * CTA redirects to dashboard if authenticated, otherwise to sign-in
  */
 
 interface HeroProps {
@@ -26,6 +29,17 @@ export default function Hero({
   ctaHref = '#contact',
   backgroundImage = '/images/hero-bg.jpg'
 }: HeroProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    if (session) {
+      router.push('/dashboard');
+    } else {
+      router.push('/auth/sign-in');
+    }
+  };
+
   return (
     <section
       id="hero"
@@ -58,15 +72,14 @@ export default function Hero({
         </p>
 
         {/* CTA Button */}
-        <a href={ctaHref}>
-          <Button
-            variant="primary"
-            size="lg"
-            className="!bg-white !text-green-600 dark:!bg-gray-800 dark:!text-green-400 hover:!bg-gray-50 dark:hover:!bg-gray-700 shadow-xl"
-          >
-            {ctaText}
-          </Button>
-        </a>
+        <Button
+          variant="primary"
+          size="lg"
+          className="!bg-white !text-green-600 dark:!bg-gray-800 dark:!text-green-400 hover:!bg-gray-50 dark:hover:!bg-gray-700 shadow-xl"
+          onClick={handleGetStarted}
+        >
+          {ctaText}
+        </Button>
       </div>
     </section>
   );

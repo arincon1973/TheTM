@@ -13,6 +13,14 @@ export interface IUser {
   googleId?: string; // For Google OAuth users
   createdAt?: Date;
   updatedAt?: Date;
+  
+  // Subscription fields
+  subscriptionTier?: 'free' | 'pro';
+  subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete';
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionStartDate?: Date;
+  subscriptionEndDate?: Date;
 }
 
 export interface UserDocument extends IUser {

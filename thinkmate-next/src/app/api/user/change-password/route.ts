@@ -63,6 +63,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ensure user has a password (not OAuth user)
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'No password found for this account' },
+        { status: 400 }
+      );
+    }
+
     // Verify current password
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
 

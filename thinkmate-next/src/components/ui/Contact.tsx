@@ -147,14 +147,17 @@ export default function Contact({
   };
 
   return (
-    <section id="contact" className="px-6 py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
-      <div className="max-w-7xl mx-auto">
+    <section id="contact" className="px-6 py-16 md:py-24 bg-gray-50 dark:bg-black relative border-t-4 dark:border-green-600">
+      {/* Background accent in dark mode */}
+      <div className="absolute inset-0 pointer-events-none"></div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-white">
             {title}
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-green-400">
             {subtitle}
           </p>
         </div>
@@ -166,7 +169,7 @@ export default function Contact({
             <div className="mb-6">
               <label
                 htmlFor="name"
-                className="block mb-2 font-medium text-gray-800 dark:text-gray-200"
+                className="block mb-2 font-medium text-gray-800 dark:text-white"
               >
                 Name
               </label>
@@ -177,7 +180,7 @@ export default function Contact({
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Your name"
-                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-500 transition-all"
               />
               {errors.name && (
                 <span className="block text-red-500 dark:text-red-400 text-sm mt-2">
@@ -190,7 +193,7 @@ export default function Contact({
             <div className="mb-6">
               <label
                 htmlFor="email"
-                className="block mb-2 font-medium text-gray-800 dark:text-gray-200"
+                className="block mb-2 font-medium text-gray-800 dark:text-white"
               >
                 Email
               </label>
@@ -201,7 +204,7 @@ export default function Contact({
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="your@email.com"
-                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-500 transition-all"
               />
               {errors.email && (
                 <span className="block text-red-500 dark:text-red-400 text-sm mt-2">
@@ -214,7 +217,7 @@ export default function Contact({
             <div className="mb-6">
               <label
                 htmlFor="message"
-                className="block mb-2 font-medium text-gray-800 dark:text-gray-200"
+                className="block mb-2 font-medium text-gray-800 dark:text-white"
               >
                 Message
               </label>
@@ -225,7 +228,7 @@ export default function Contact({
                 onChange={handleInputChange}
                 rows={5}
                 placeholder="Your message"
-                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 transition-all resize-y min-h-[120px]"
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-500 transition-all resize-y min-h-[120px]"
               />
               {errors.message && (
                 <span className="block text-red-500 dark:text-red-400 text-sm mt-2">
@@ -247,7 +250,7 @@ export default function Contact({
 
             {/* Success Message */}
             {showSuccess && (
-              <div className="mt-6 bg-green-100 dark:bg-green-900/30 border border-green-500 text-green-800 dark:text-green-400 px-4 py-3 rounded-lg text-center animate-fade-in">
+              <div className="mt-6 bg-green-100 dark:bg-green-600/20 border border-green-500 dark:border-green-600 text-green-800 dark:text-green-300 px-4 py-3 rounded-lg text-center animate-fade-in">
                 Thank you! Your message has been sent.
               </div>
             )}

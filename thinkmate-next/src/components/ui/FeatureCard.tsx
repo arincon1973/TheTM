@@ -21,11 +21,11 @@ export default function FeatureCard({
   className = ''
 }: FeatureCardProps) {
   return (
-    <Card hover padding="lg" className={`text-center ${className}`}>
-      {/* Icon */}
+    <Card hover padding="lg" className={`text-center group ${className}`}>
+      {/* Icon with glow effect in dark mode */}
       <div className="text-5xl mb-4 flex items-center justify-center">
         {typeof icon === 'string' ? (
-          <span role="img" aria-label={title}>
+          <span role="img" aria-label={title} className="transition-transform">
             {icon}
           </span>
         ) : (
@@ -33,13 +33,13 @@ export default function FeatureCard({
         )}
       </div>
       
-      {/* Title */}
-      <h3 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+      {/* Title with glow effect in dark mode */}
+      <h3 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white group-hover:dark:text-green-400 transition-colors">
         {title}
       </h3>
       
       {/* Description */}
-      <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+      <p className="text-base text-gray-600 dark:text-gray-300 leading-relaxed group-hover:dark:text-white transition-colors">
         {description}
       </p>
     </Card>

@@ -16,13 +16,21 @@ export default function DarkModeToggle() {
   useEffect(() => {
     setMounted(true);
     const savedDarkMode = localStorage.getItem('darkMode') === 'enabled';
+    console.log('📱 DarkModeToggle mounted');
+    console.log('localStorage darkMode:', localStorage.getItem('darkMode'));
+    console.log('savedDarkMode:', savedDarkMode);
+    
     setDarkMode(savedDarkMode);
     
     if (savedDarkMode) {
       document.documentElement.classList.add('dark');
+      console.log('✅ Added dark class on mount');
     } else {
       document.documentElement.classList.remove('dark');
+      console.log('✅ Removed dark class on mount');
     }
+    
+    console.log('Current classes on HTML:', document.documentElement.className);
   }, []);
 
   // Toggle dark mode
@@ -33,10 +41,16 @@ export default function DarkModeToggle() {
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('darkMode', 'enabled');
+      console.log('✅ Dark mode enabled - class added');
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('darkMode', 'disabled');
+      console.log('✅ Light mode enabled - class removed');
     }
+    
+    // Force a re-check
+    console.log('Current dark class:', document.documentElement.classList.contains('dark'));
+    console.log('HTML classes:', document.documentElement.className);
   };
 
   // Prevent hydration mismatch

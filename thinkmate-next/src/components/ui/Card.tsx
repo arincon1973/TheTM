@@ -22,7 +22,7 @@ export default function Card({
   onClick
 }: CardProps) {
   // Base styles
-  const baseStyles = 'bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300';
+  const baseStyles = 'bg-white dark:bg-gray-900 rounded-lg shadow-md border-2 border-gray-200 dark:border-green-600 transition-all duration-300';
   
   // Padding styles
   const paddingStyles = {
@@ -32,7 +32,7 @@ export default function Card({
   };
   
   // Hover effect
-  const hoverStyles = hover ? 'hover:shadow-lg hover:-translate-y-1 cursor-pointer' : '';
+  const hoverStyles = hover ? 'hover:shadow-lg hover:-translate-y-1 dark:hover:border-green-400 dark:hover:shadow-green-900 cursor-pointer' : '';
   
   return (
     <div

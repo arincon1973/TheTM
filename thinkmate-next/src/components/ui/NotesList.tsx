@@ -301,8 +301,8 @@ export default function NotesList() {
         throw new Error(data.error || 'Failed to create note');
       }
 
-      // Add new note to list
-      setNotes([data.note, ...notes]);
+      // Refresh notes list to show the new note
+      await fetchNotes();
       setIsCreateModalOpen(false);
       setNewTitle('');
       setNewContent('');
@@ -356,6 +356,18 @@ export default function NotesList() {
   // Fetch notes on mount
   useEffect(() => {
     fetchNotes();
+    
+    // Listen for note created event from NoteForm
+    const handleNoteCreated = () => {
+      console.log('📝 Note created event received - refreshing list');
+      fetchNotes();
+    };
+    
+    window.addEventListener('noteCreated', handleNoteCreated);
+    
+    return () => {
+      window.removeEventListener('noteCreated', handleNoteCreated);
+    };
   }, []);
 
   if (loading) {

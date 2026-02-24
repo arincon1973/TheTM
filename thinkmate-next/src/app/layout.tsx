@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
+      <body className={`${inter.className} antialiased bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300`}>
         {/* Theme loader script - runs before page renders */}
         <Script
           id="theme-loader"

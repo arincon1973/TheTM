@@ -132,6 +132,14 @@ export default function NoteForm() {
         console.error('Failed to refresh generation count:', err);
       }
       
+      // Dispatch custom event to refresh notes list
+      console.log('📤 Dispatching noteCreated event');
+      window.dispatchEvent(new CustomEvent('noteCreated'));
+      
+      // Clear form after successful save
+      setPrompt('');
+      setGeneratedText('');
+      
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage('');

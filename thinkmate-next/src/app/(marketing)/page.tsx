@@ -26,14 +26,17 @@ export default function Home() {
       />
 
       {/* Features Section - Grid of features using FeatureCard components */}
-      <section id="features" className="px-6 py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto">
+      <section id="features" className="px-6 py-16 md:py-24 bg-gray-50 dark:bg-black relative border-y-4 dark:border-green-600">
+        {/* Background accent in dark mode */}
+        <div className="absolute inset-0 pointer-events-none"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-white">
               Why Choose ThinkMate?
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-green-400">
               Powerful features designed to enhance your writing experience
             </p>
           </div>

@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateText, generateNotes, expandText, summarizeText } from '@/lib/openai';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import Note from '@/models/Note';
+
+const AI_GENERATION_LIMIT = 5;
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +21,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized. Please sign in to use AI features.' },
         { status: 401 }
+      );
+    }
+
+    // Check AI generation limit
+    await connectDB();
+    const aiGeneratedCount = await Note.countDocuments({
+      userId: session.user.id,
+      prompt: { $exists: true, $ne: '' }
+    });
+
+    if (aiGeneratedCount >= AI_GENERATION_LIMIT) {
+      return NextResponse.json(
+        { 
+          error: `You've reached the AI generation limit of ${AI_GENERATION_LIMIT} notes. Please upgrade to Pro for unlimited AI generations.`,
+          remainingGenerations: 0,
+          limit: AI_GENERATION_LIMIT
+        },
+        { status: 403 }
       );
     }
 
@@ -62,6 +84,9 @@ export async function POST(request: NextRequest) {
         break;
     }
 
+    // Calculate remaining generations
+    const remainingGenerations = AI_GENERATION_LIMIT - (aiGeneratedCount + 1);
+
     // Return success response
     return NextResponse.json({
       success: true,
@@ -69,6 +94,8 @@ export async function POST(request: NextRequest) {
       prompt: prompt,
       action: action,
       timestamp: new Date().toISOString(),
+      remainingGenerations: remainingGenerations,
+      limit: AI_GENERATION_LIMIT,
     });
 
   } catch (error: any) {

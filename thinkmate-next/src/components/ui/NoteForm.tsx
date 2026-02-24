@@ -5,7 +5,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const AI_GENERATION_LIMIT = 5;
 
 export default function NoteForm() {
   const [prompt, setPrompt] = useState('');
@@ -15,6 +17,23 @@ export default function NoteForm() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [action, setAction] = useState<'generate' | 'notes' | 'expand' | 'summarize'>('generate');
+  const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
+
+  // Fetch current AI generation count on mount
+  useEffect(() => {
+    const fetchGenerationCount = async () => {
+      try {
+        const response = await fetch('/api/notes/ai-count');
+        if (response.ok) {
+          const data = await response.json();
+          setRemainingGenerations(AI_GENERATION_LIMIT - data.count);
+        }
+      } catch (err) {
+        console.error('Failed to fetch generation count:', err);
+      }
+    };
+    fetchGenerationCount();
+  }, []);
 
   /**
    * Handle text generation
@@ -54,6 +73,11 @@ export default function NoteForm() {
       }
 
       setGeneratedText(data.text);
+      
+      // Update remaining generations count
+      if (data.remainingGenerations !== undefined) {
+        setRemainingGenerations(data.remainingGenerations);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to generate text. Please try again.');
       console.error('Generation error:', err);
@@ -97,6 +121,17 @@ export default function NoteForm() {
 
       setSuccessMessage('✅ Note saved successfully!');
       
+      // Refresh generation count after saving
+      try {
+        const countResponse = await fetch('/api/notes/ai-count');
+        if (countResponse.ok) {
+          const countData = await countResponse.json();
+          setRemainingGenerations(countData.remaining);
+        }
+      } catch (err) {
+        console.error('Failed to refresh generation count:', err);
+      }
+      
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage('');
@@ -124,12 +159,32 @@ export default function NoteForm() {
     <div className="w-full max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          ✨ AI Note Generator
-        </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Generate intelligent notes, summaries, and expanded content using AI
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              ✨ AI Note Generator
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Generate intelligent notes, summaries, and expanded content using AI
+            </p>
+          </div>
+          {remainingGenerations !== null && (
+            <div className="text-right">
+              <div className={`text-sm font-semibold ${
+                remainingGenerations <= 1 
+                  ? 'text-red-600 dark:text-red-400' 
+                  : remainingGenerations <= 2 
+                  ? 'text-orange-600 dark:text-orange-400'
+                  : 'text-gray-600 dark:text-gray-400'
+              }`}>
+                {remainingGenerations} / {AI_GENERATION_LIMIT}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-500">
+                AI generations left
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Action Selector */}
@@ -277,7 +332,7 @@ export default function NoteForm() {
       <div className="mb-6">
         <button
           onClick={handleGenerate}
-          disabled={loading || !prompt.trim()}
+          disabled={loading || !prompt.trim() || remainingGenerations === 0}
           className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:cursor-not-allowed"
           aria-label={loading ? 'Generating...' : 'Generate AI text'}
         >
@@ -305,10 +360,17 @@ export default function NoteForm() {
               </svg>
               Generating...
             </span>
+          ) : remainingGenerations === 0 ? (
+            '🚫 AI Generation Limit Reached'
           ) : (
             '✨ Generate AI Text'
           )}
         </button>
+        {remainingGenerations === 0 && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-400 text-center">
+            You've used all {AI_GENERATION_LIMIT} AI generations. Manual note creation is still available below.
+          </p>
+        )}
       </div>
 
       {/* Generated Text Display */}
@@ -389,11 +451,12 @@ export default function NoteForm() {
           💡 Tips for Better Results
         </h3>
         <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
+          <li>You can generate up to {AI_GENERATION_LIMIT} AI-powered notes</li>
           <li>Be specific and clear in your prompts</li>
           <li>Use "Create Notes" for structured topic summaries</li>
           <li>Use "Expand" to add more detail to existing text</li>
           <li>Use "Summarize" to condense long content</li>
-          <li>The AI uses GPT-4 for high-quality responses</li>
+          <li>Manual note creation (below) is unlimited</li>
         </ul>
       </div>
     </div>

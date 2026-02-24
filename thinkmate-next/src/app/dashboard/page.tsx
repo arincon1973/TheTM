@@ -174,10 +174,10 @@ export default function DashboardPage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '1.5rem',
         }}>
-          {/* Profile Card - Scrolls to top */}
+          {/* Profile Card - Navigates to profile page */}
           <div 
             style={styles.card}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => router.push('/profile')}
             onMouseEnter={(e) => {
               Object.assign(e.currentTarget.style, styles.cardHover);
             }}
@@ -189,7 +189,7 @@ export default function DashboardPage() {
             tabIndex={0}
             onKeyPress={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                router.push('/profile');
               }
             }}
           >
